@@ -28,10 +28,19 @@ public class LRUCacheDemo1 {
         Node<K, V> prev;
         Node<K, V> next;
 
+        /**
+         * 无参构造，初始化节点
+         */
         public Node() {
             this.prev = this.next = null;
         }
 
+        /**
+         * 有参构造，初始化节点
+         *
+         * @param key
+         * @param value
+         */
         public Node(K key, V value) {
             this.key = key;
             this.value = value;
@@ -40,7 +49,7 @@ public class LRUCacheDemo1 {
     }
 
     /**
-     * 构建一个虚拟的双向链表,里面安放得就是我们的Node
+     * 2.构建一个虚拟的双向链表,里面安放得就是我们的Node
      *
      * @param <K>
      * @param <V>
@@ -50,7 +59,7 @@ public class LRUCacheDemo1 {
         Node<K, V> tail;
 
         /**
-         * 2.1构造方法
+         * 2.1构造方法，初始化双向链表
          */
         public DoubleLinkedList() {
             head = new Node<>();
@@ -66,8 +75,8 @@ public class LRUCacheDemo1 {
          */
         public void addHead(Node<K, V> node) {
             node.next = head.next;
-            node.prev = head;
             head.next.prev = node;
+            node.prev = head;
             head.next = node;
         }
 
@@ -93,10 +102,17 @@ public class LRUCacheDemo1 {
         }
     }
 
+    /**
+     * LRU容量
+     */
     private int cacheSize;
     Map<Integer, Node<Integer, Integer>> map;
     DoubleLinkedList<Integer, Integer> doubleLinkedList;
 
+    /**
+     * 初始化LRU
+     * @param cacheSize
+     */
     public LRUCacheDemo1(int cacheSize) {
         this.cacheSize = cacheSize;
         map = new HashMap<>();
@@ -119,22 +135,32 @@ public class LRUCacheDemo1 {
         return node.value;
     }
 
+    /**
+     * 向LRU中放值
+     * @param key
+     * @param value
+     */
     public void put(int key, int value) {
         // 如果map里面有key，更新value值，放回map，并移动到队首
         if (map.containsKey(key)) {
             Node<Integer, Integer> node = map.get(key);
+            // 更新node的value
             node.value = value;
+            // 更新node
             map.put(key, node);
 
+            // 将当前节点移动到队首
             doubleLinkedList.removeNode(node);
             doubleLinkedList.addHead(node);
         } else {
             if (map.size() == cacheSize) {
                 // 如果map满了，map和双向链表都移除最后一个元素
                 Node lastNode = doubleLinkedList.getLast();
+                // map和链表都移除当前最后一个node
                 map.remove(lastNode.key);
                 doubleLinkedList.removeNode(lastNode);
             }
+            // 如果链表没有满，新建节点并从头部加入
             Node<Integer, Integer> newNode = new Node<>(key, value);
             map.put(key, newNode);
             doubleLinkedList.addHead(newNode);
@@ -143,24 +169,32 @@ public class LRUCacheDemo1 {
 
     public static void main(String[] args) {
         LRUCacheDemo1 lruCacheDemo = new LRUCacheDemo1(3);
+        System.out.println("缓存容量:" + lruCacheDemo.cacheSize);
         lruCacheDemo.put(1, 1);
+        System.out.println("map大小：" + lruCacheDemo.map.size());
         lruCacheDemo.put(2, 2);
+        System.out.println("map大小：" + lruCacheDemo.map.size());
         lruCacheDemo.put(3, 3);
-        System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
 
         lruCacheDemo.put(4, 4);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
 
         lruCacheDemo.put(3, 3);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
 
         lruCacheDemo.put(3, 3);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
 
         lruCacheDemo.put(3, 3);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
 
         lruCacheDemo.put(5, 5);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println("map大小：" + lruCacheDemo.map.size());
     }
 }
